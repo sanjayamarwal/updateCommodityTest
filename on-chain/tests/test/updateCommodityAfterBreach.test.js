@@ -264,34 +264,32 @@ describe("UpdateCommodityAfterBreachTest", () => {
     newContracts.ltk = new_ltk
     newContracts.vault = new_vault
 
-    console.log(governance);
-
     //handle breach
     await this.strategy.handleBreach();
 
     expect(await this.strategy.isBreachHandled()).to.equal(true);
 
-    // setting governance through governance
-    this.strategy.setGovernance(accounts[2], { from: governance });
-
-    expect(await this.strategy.governance()).to.be.equal(accounts[2]);
 
     const _whitelistVault = async () => {
-      await this.long.setWhitelist(new_vault.address, true, { from: user });
-      await this.short.setWhitelist(new_vault.address, true, { from: user });
+      owner=await new_vault.owner();
+      await new_ltk.setWhitelist(new_vault.address, true, { from: owner });
+      await new_stk.setWhitelist(new_vault.address, true, { from: owner });
     };
 
     await _whitelistVault();
+    
+    console.log(owner);
+    console.log(governance);
 
     //updateCommodityAfterBreach
-    await expectRevert( await this.strategy.updateCommodityAfterBreach(
+    await this.strategy.updateCommodityAfterBreach(
       new_vault.address,
       new_ltk.address,
       new_stk.address, 
-      {from: accounts[2]}), 
-      "revert");
+      {from: governance});
 
-      //set initial spot price of new Vault contract
+     //set initial spot price of new Vault contract
     await new_vault.updateSpot(breachedSpot, {from: user2});
+
   });
 }); 
