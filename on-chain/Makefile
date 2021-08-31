@@ -30,3 +30,7 @@ earn:
 	make --directory=mettalex-yearn deposit
 	make --directory=mettalex-yearn earn
 	make --directory=mettalex-vault balanceOf_pool_controller
+
+flatten:
+	make --directory=mettalex-vault flatten
+	make --directory=pool-controller flatten

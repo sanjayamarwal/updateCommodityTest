@@ -45,3 +45,6 @@ init:
 	npm audit fix
 	rm -rf .openzeppelin
 	npx oz init mettalex-vault --no-interactive
+
+flatten:
+	truffle-flattener contracts/vault/Vault.sol > contracts/flats/Vault.sol

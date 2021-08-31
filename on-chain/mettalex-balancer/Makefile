@@ -23,3 +23,6 @@ init:
 	npm audit fix
 	rm -rf .openzeppelin
 	npx oz init mettalex-balancer --no-interactive
+
+flatten:
+	truffle-flattener contracts/BPool.sol > contracts/flats/BPool.sol && truffle-flattener contracts/BFactory.sol > contracts/flats/BFactory.sol

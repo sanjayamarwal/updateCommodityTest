@@ -15,3 +15,6 @@ init:
 	npm audit fix
 	rm -rf .openzeppelin
 	npx oz init pool-controller --no-interactive
+
+flatten:
+	truffle-flattener contracts/strategy/StrategyBalancerMettalexV3.sol > contracts/flats/StrategyBalancerMettalexV3.sol && truffle-flattener contracts/helper/StrategyHelper.sol > contracts/flats/StrategyHelper.sol
