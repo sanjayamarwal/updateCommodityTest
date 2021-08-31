@@ -16,6 +16,77 @@ from scripts.constants import (
     apiKey
 )
 
+def read_config():
+    # Read configuration from local file system
+    # For cloud function replace with reading from secrets manager
+    with open(os.path.expanduser('~/.mettalex/config-dev.json'), 'r') as f:
+        config = json.load(f)
+    return config
+
+
+def connect(network, account='user'):
+    if network == 'local':
+        from web3 import Web3
+
+        w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
+        try:
+            w3.eth.defaultAccount = w3.eth.accounts[0]
+            admin = w3.eth.accounts[0]
+        except:
+            raise Exception("Ensure ganache-cli is connected")
+    elif network == 'bsc-testnet':
+        config = read_config()
+        os.environ['WEB3_PROVIDER_URI'] = 'https://data-seed-prebsc-1-s1.binance.org:8545/'
+        os.environ['WEB3_CHAIN_ID'] = '97'
+
+        from web3.middleware import construct_sign_and_send_raw_middleware
+        from web3.middleware import geth_poa_middleware
+        from web3.auto import w3
+
+        admin = w3.eth.account.from_key(config[account]['key'])
+        w3.eth.defaultAccount = admin.address
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        w3.middleware_onion.add(construct_sign_and_send_raw_middleware(admin))
+
+    elif network == 'bsc-mainnet':
+        config = read_config()
+        os.environ['WEB3_PROVIDER_URI'] = 'https://bsc-dataseed.binance.org/'
+        os.environ['WEB3_CHAIN_ID'] = '56'
+
+        from web3.middleware import construct_sign_and_send_raw_middleware
+        from web3.middleware import geth_poa_middleware
+        from web3.auto import w3
+
+        admin = w3.eth.account.from_key(config[account]['key'])
+        w3.eth.defaultAccount = admin.address
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        w3.middleware_onion.add(construct_sign_and_send_raw_middleware(admin))
+
+    elif network == 'kovan':
+        config = read_config()
+        os.environ['WEB3_INFURA_PROJECT_ID'] = config['infura']['project_id']
+        os.environ['WEB3_INFURA_API_SECRET'] = config['infura']['secret']
+
+        from web3.middleware import construct_sign_and_send_raw_middleware
+        from web3.auto.infura.kovan import w3
+
+        admin = w3.eth.account.from_key(config[account]['key'])
+        w3.eth.defaultAccount = admin.address
+        w3.middleware_onion.add(construct_sign_and_send_raw_middleware(admin))
+    elif is_ipv4_socket_address(network):
+        from web3 import Web3
+        w3 = Web3(Web3.HTTPProvider("http://" + network))
+        try:
+            w3.eth.defaultAccount = w3.eth.accounts[0]
+            admin = w3.eth.accounts[0]
+        except:
+            raise Exception("Ensure ganache-cli is connected")
+    else:
+        raise ValueError(f'Unknown network {network}')
+
+    assert w3.isConnected()
+    return w3, admin
+    
 def verify_contract(w3, network, contract_name='BPool', cache_file_name='contract_cache.json'):
 
     cache_file = Path(__file__).parent / 'contract-cache' / cache_file_name
