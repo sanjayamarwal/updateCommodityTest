@@ -62,8 +62,6 @@ def verify_contract(w3, network, contract_name='BPool', cache_file_name='contrac
         with open(source_file, 'r') as code:
             source_code = source_file.read_text()
             constructor_args = '0000000000000000000000002e8fe590c8420c571ee3b7cb3a52f6990c2f43d1000000000000000000000000ba0c01aa68ac556bf38b1d6d1eefe1b4248b13e9000000000000000000000000ac0e6711739784e24f08c228017467578733c5ad000000000000000000000000dc15c2d1467e14b92a8b93df91f0064f9b760cdf000000000000000000000000962ae1f7ac7c0551f2d547dbcc76b65b6df9689a000000000000000000000000db56bda74642b4d570cdc79d6243070163df8210000000000000000000000000ba0c01aa68ac556bf38b1d6d1eefe1b4248b13e9'
-
-    #    print('constructor_args', constructor_arguments, constructor_types, constructor_args) 
         
         sendVerifyRequest(
                     bscscan_api,
